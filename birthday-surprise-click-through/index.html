@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#210d1b">
+  <title>A Little World Made Just for You ❤️</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+  <div class="floating-hearts" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#home">♡ just for you</a>
+    <button class="music-button" id="musicToggle" type="button" aria-label="Play or pause our song">♫ <span>Play our song</span></button>
+  </header>
+
+  <main>
+    <section class="hero section" id="home">
+      <div class="hero-glow"></div>
+      <p class="eyebrow">A LITTLE SURPRISE FOR MY FAVOURITE PERSON</p>
+      <div class="portrait-frame">
+        <!-- Replace assets/his-photo.jpg with his photo, keeping the same filename. -->
+        <img src="assets/photo1.jpg" alt="My favourite person" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+        <div class="photo-placeholder"><span>♡</span><small>Add his photo here</small></div>
+      </div>
+      <p class="tiny-label">OCTOBER 22 · YOUR SPECIAL DAY</p>
+      <h1>Happy Birthday,<br><em>My Love</em> ❤️</h1>
+      <p class="hero-copy">A little world made just for you — filled with our memories, my love, and all the little things I never want you to forget.</p>
+      <button class="primary-button" id="openSurprise" type="button">Open your surprise <span>♡</span></button>
+      <div class="scroll-hint">ONE LITTLE SURPRISE AT A TIME <span>♡</span></div>
+      <p class="screen-hint">Your surprise is waiting behind every button ♡</p>
+    </section>
+
+    <section class="section intro-section" id="memory-game">
+      <p class="eyebrow">CHAPTER ONE</p>
+      <h2>How well do you <em>remember us?</em></h2>
+      <p class="section-intro">Let's go back to our little moments. Choose an answer and unlock a memory. 💗</p>
+      <div class="quiz-card">
+        <div class="quiz-count" id="quizCount">MEMORY 01 / 04</div>
+        <h3 id="questionText">Where did our story begin?</h3>
+        <div class="answer-options" id="answerOptions"></div>
+        <p class="quiz-feedback" id="quizFeedback" aria-live="polite"></p>
+        <div class="memory-reveal" id="memoryReveal" hidden>
+          <div class="memory-photo">
+            <img id="memoryImage" src="assets/memory1.jpg" alt="A special memory" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+            <div class="photo-placeholder"><span>♡</span><small>Add your memory photo</small></div>
+          </div>
+          <p class="memory-date" id="memoryDate">OUR LITTLE MEMORY</p>
+          <p class="memory-caption" id="memoryCaption"></p>
+          <button class="secondary-button" id="nextQuestion" type="button">Next memory →</button>
+        </div>
+        <button class="text-button" id="showMemory" type="button">I need a hint / show me anyway ♡</button>
+      </div>
+      <div class="chapter-nav"><button class="secondary-button" data-go="home" type="button">← Back</button><button class="primary-button" data-go="our-story" type="button">Our Love Story →</button></div>
+    </section>
+
+    <section class="section timeline-section" id="our-story">
+      <p class="eyebrow">CHAPTER TWO</p>
+      <h2>Our little <em>love story</em></h2>
+      <p class="section-intro">Not just dates. Little moments that became my favourite memories.</p>
+      <div class="timeline">
+        <article class="timeline-item">
+          <span class="timeline-dot">01</span><div class="timeline-card">
+            <p class="memory-date">THE BEGINNING</p><h3>The day we first meet</h3>
+            <p>Somehow, one little conversation became a big part of my life.</p>
+            <img src="assets/memory1.jpg" alt="Our first memory" onerror="this.style.display='none';">
+          </div>
+        </article>
+        <article class="timeline-item">
+          <span class="timeline-dot">02</span><div class="timeline-card">
+            <p class="memory-date">A FAVOURITE DAY</p><h3>A moment I wish I could replay</h3>
+            <p>One of those moments I want to keep safe in my heart forever.</p>
+            <img src="assets/memory2.jpg" alt="A favourite memory" onerror="this.style.display='none';">
+          </div>
+        </article>
+        <article class="timeline-item">
+          <span class="timeline-dot">03</span><div class="timeline-card">
+            <p class="memory-date">MY HAPPY PLACE</p><h3>All the little things</h3>
+            <p>The laughs, the silly talks, and the ordinary days that feel special with you.my happy place is ur hand</p>
+            <img src="assets/memory3.jpg" alt="Another favourite memory" onerror="this.style.display='none';">
+          </div>
+        </article>
+      </div>
+      <div class="chapter-nav"><button class="secondary-button" data-go="memory-game" type="button">← Memories</button><button class="primary-button" data-go="love-letter" type="button">Open My Heart →</button></div>
+    </section>
+
+    <section class="section letter-section" id="love-letter">
+      <p class="eyebrow">CHAPTER THREE</p>
+      <h2>A letter I want you to <em>keep forever</em></h2>
+      <p class="section-intro">Some feelings are easier to write than say out loud.</p>
+      <button class="envelope" id="openLetter" type="button" aria-expanded="false">
+        <span class="envelope-heart">♡</span><span>Open my heart</span><small>tap to open</small>
+      </button>
+        <article class="letter-paper" id="letterPaper" hidden
+  style="background-image: linear-gradient(rgba(25, 5, 20, 0.78), rgba(25, 5, 20, 0.78)), url('assets/photo2.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; color: #e3d8d8; border: 1px solid rgba(255,255,255,0.3);">
+        <p class="letter-date">OCTOBER 22 · FOR YOU</p>
+        <h3>To my favourite person,</h3>
+        <p>Happy birthday, my love. ❤️</p>
+        <p>I'm so grateful that life brought you into my world. Thank you for the laughs, the comfort, the little moments, and the memories that mean more to me than you know.</p>
+        <p>I hope this new year of your life brings you peace, happiness, courage, and every beautiful thing your heart is hoping for. I hope you always remember how special you are to me.</p>
+        <p>This little website is just a tiny way of showing you how much you mean to me. If I could make one wish, it would be to keep making beautiful memories with you.</p>
+        <p class="signature">Always a little more in love with you,<br><em>Your person ♡</em></p>
+        <p class="edit-note">You can edit this letter in index.html to make it more personal.</p>
+      </article>
+      <div class="chapter-nav"><button class="secondary-button" data-go="our-story" type="button">← Love Story</button><button class="primary-button" data-go="reasons" type="button">Love Notes →</button></div>
+    </section>
+
+    <section class="section reasons-section" id="reasons">
+      <p class="eyebrow">CHAPTER FOUR</p>
+      <h2>Little reasons why <em>I love you</em></h2>
+      <p class="section-intro">Tap the jar whenever you need a reminder. 💌</p>
+      <div class="jar-wrap">
+        <div class="jar" aria-label="Jar of love notes"><div class="jar-lid"></div><div class="jar-glass"><span>♡</span><span>♡</span><span>♡</span><span>♡</span><span>♡</span></div></div>
+        <div class="reason-paper" id="reasonPaper">Your little love note will appear here. ♡</div>
+        <button class="primary-button" id="reasonButton" type="button">Pick a little reason ♡</button>
+        <p class="reason-count" id="reasonCount">A jar full of love</p>
+      </div>
+      <div class="chapter-nav"><button class="secondary-button" data-go="love-letter" type="button">← My Letter</button><button class="primary-button" data-go="birthday-wish" type="button">Final Birthday Wish →</button></div>
+    </section>
+
+    <section class="section wishes-section" id="birthday-wish">
+      <p class="eyebrow">THE LAST CHAPTER</p>
+      <h2>My birthday wish <em>for you</em> ✨</h2>
+      <div class="wish-card">
+        <div class="stars" aria-hidden="true">✦　·　✧　·　✦</div>
+        <p>If I could give you one thing in life, I would give you the ability to see yourself through my eyes. Only then would you understand how loved, precious, and wonderful you are to me.</p>
+        <p>May this year bring you closer to your dreams. May you keep smiling, keep growing, and always feel loved — especially by me. And may we make many more memories worth keeping.</p>
+        <p class="big-love">Happy Birthday, my love. ♡</p>
+        <div class="final-photo">
+          <img src="assets/photo3.jpg" alt="Our final surprise" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+          <div class="photo-placeholder"><span>♡</span><small>Add a final photo here</small></div>
+        </div>
+        <button class="secondary-button" id="finalButton" type="button">One more little surprise ✨</button>
+        <p class="final-message" id="finalMessage" hidden>You are one of my favourite parts of this life. Here's to more little moments, more laughter, and more us. ❤️</p>
+      </div>
+      <div class="chapter-nav"><button class="secondary-button" id="restartSurprise" type="button">↻ Start again</button></div>
+      <p class="ending">made with all my love · just for you ♡</p>
+    </section>
+  </main>
+
+  <audio id="ourSong" preload="none" loop>
+    <source src="assets/our-song.mp3" type="audio/mpeg">
+  </audio>
+  <script src="script.js"></script>
+
+  
+
+</body>
+</html>
