@@ -1,9 +1,41 @@
-// Personalise the questions, memories and love notes in the arrays below.
+ 
 const memories = [
-  { question: "Where did our story begin?", options: ["Our first chat", "Our first trip", "A random hello", "A funny little moment"], answer: 0, date: "THE BEGINNING", caption: "Every beautiful story starts somewhere. I'm so glad ours started. ♡", image: "assets/memory-1.jpg" },
-  { question: "Which kind of moment makes me smile the most?", options: ["Our silly talks", "When we eat", "When we take photos", "All our little moments"], answer: 3, date: "MY HAPPY PLACE", caption: "It's not always the big things. It's the little moments with you. 💗", image: "assets/memory-2.jpg" },
-  { question: "What do I want more of with you?", options: ["More memories", "More adventures", "More laughter", "All of these"], answer: 3, date: "MORE US, PLEASE", caption: "There's still so much life I want to experience by your side. ♡", image: "assets/memory-3.jpg" },
-  { question: "What's my favourite thing about us?", options: ["Our inside jokes", "Our talks", "How we care", "The whole little world we share"], answer: 3, date: "US, ALWAYS", caption: "My favourite part is that it's our story — and we're still writing it. ❤️", image: "assets/memory-4.jpg" }
+  {
+    question: "Which kind of moment makes me smile the most?",
+    options: [
+      "Our silly talks",
+      "When we eat",
+      "When we take photos",
+      "All our little moments"
+    ],
+    answer: 3,
+    date: "MY HAPPY PLACE",
+    caption: "It's not always the big things. It's the little moments with you. 💗",
+    image: "assets/img1.jpg"
+  }
+];
+
+const memoryImages = [
+  {
+    date: "OUR SILLY TALKS 💗",
+    caption: "Your silly talks always bring a smile to my face. ❤️",
+    image: "assets/img1.jpg"
+  },
+  {
+    date: "OUR FOOD MOMENTS 🍰",
+    caption: "Even eating together becomes a special memory with you. ❤️",
+    image: "assets/img2.jpg"
+  },
+  {
+    date: "OUR PHOTO MOMENTS 📸",
+    caption: "Every picture holds a little piece of our story. ❤️",
+    image: "assets/img3.jpg"
+  },
+  {
+    date: "OUR LITTLE MOMENTS 💞",
+    caption: "Every little moment with you means so much to me. ❤️",
+    image: "assets/img4.jpg"
+  }
 ];
 
 const reasons = [
@@ -20,13 +52,16 @@ const reasons = [
 ];
 
 const $ = (id) => document.getElementById(id);
+
 let currentQuestion = 0;
+let viewedMemories = [];
+let selectedMemoryIndex = null;
 let reasonsShown = 0;
 let lastReason = -1;
 let musicEnabled = false;
 let activeSection = "home";
 
-// Add your own permitted audio files with these exact names inside assets/.
+// Music files for each section
 const songTracks = {
   home: "assets/our-song.mp3",
   "memory-game": "assets/memory-song.mp3",
@@ -35,132 +70,287 @@ const songTracks = {
   reasons: "assets/reasons-song.mp3",
   "birthday-wish": "assets/birthday-song.mp3"
 };
+
 const song = $("ourSong");
 const musicButton = $("musicToggle");
+
+// Prevent old song requests from taking over
+let songRequestId = 0;
+
+function updateMusicButton(playing) {
+  if (!musicButton) return;
+
+  musicButton.classList.toggle("playing", playing);
+
+  const label = musicButton.querySelector("span");
+
+  if (label) {
+    label.textContent = playing
+      ? "Pause our song"
+      : "Play our song";
+  }
+}
 
 function showSection(id) {
   const next = $(id);
   if (!next) return;
+
   document.querySelectorAll("main > section").forEach((section) => {
     section.hidden = section.id !== id;
     section.classList.remove("screen-active");
   });
+
   next.hidden = false;
-  // Restart the entry animation each time a chapter is opened.
   void next.offsetWidth;
   next.classList.add("screen-active");
   activeSection = id;
+
   window.scrollTo({ top: 0, behavior: "smooth" });
-  if (musicEnabled) playSectionMusic(id);
+
+  // Change music when moving to another section
+  if (musicEnabled) {
+    playSectionMusic(id);
+  }
 }
 
 async function playSectionMusic(sectionId) {
   const file = songTracks[sectionId];
-  if (!file || !musicEnabled) return;
-  if (!song.src.endsWith(file)) {
+
+  if (!file || !song) return;
+
+  const requestId = ++songRequestId;
+
+  // Remember which section's song should play
+  if (song.dataset.track !== file) {
+    song.pause();
+    song.currentTime = 0;
     song.src = file;
+    song.dataset.track = file;
     song.load();
   }
+
   try {
     await song.play();
-    musicButton.classList.add("playing");
-    musicButton.querySelector("span").textContent = "Pause our song";
+
+    // Ignore an outdated play request
+    if (requestId !== songRequestId) return;
+
+    musicEnabled = true;
+    updateMusicButton(true);
   } catch (error) {
-    musicButton.classList.remove("playing");
-    musicButton.querySelector("span").textContent = "Tap to play music";
+    if (requestId !== songRequestId) return;
+
+    // Browser may block autoplay until the user interacts
+    updateMusicButton(false);
   }
 }
 
+// When one song ends, continue with the next section's song
+function playNextSong() {
+  if (!musicEnabled || !song) return;
+
+  const sectionOrder = [
+    "home",
+    "memory-game",
+    "our-story",
+    "love-letter",
+    "reasons",
+    "birthday-wish"
+  ];
+
+  const currentIndex = sectionOrder.indexOf(activeSection);
+
+  if (currentIndex === -1) return;
+
+  // Repeat the current section's song if the user is still there
+  playSectionMusic(sectionOrder[currentIndex]);
+}
+
+if (song) {
+  song.addEventListener("ended", playNextSong);
+
+  song.addEventListener("play", () => {
+    updateMusicButton(true);
+  });
+
+  song.addEventListener("pause", () => {
+    if (!song.ended) {
+      updateMusicButton(false);
+    }
+  });
+}
+
 function renderQuestion() {
-  const item = memories[currentQuestion];
-  $("quizCount").textContent = `MEMORY ${String(currentQuestion + 1).padStart(2, "0")} / ${String(memories.length).padStart(2, "0")}`;
+  const item = memories[0];
+
+  $("quizCount").textContent =
+    `MEMORY ${viewedMemories.length + 1} / 4`;
+
   $("questionText").textContent = item.question;
   $("answerOptions").innerHTML = "";
   $("quizFeedback").textContent = "";
   $("memoryReveal").hidden = true;
   $("showMemory").hidden = false;
+
+  selectedMemoryIndex = null;
+
   item.options.forEach((option, index) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "answer-option";
     button.textContent = option;
-    button.addEventListener("click", () => chooseAnswer(index, button));
+
+    if (viewedMemories.includes(index)) {
+      button.disabled = true;
+      button.classList.add("selected");
+    } else {
+      button.addEventListener("click", () => chooseAnswer(index, button));
+    }
+
     $("answerOptions").appendChild(button);
   });
-  $("nextQuestion").textContent = currentQuestion === memories.length - 1 ? "Finish memories →" : "Next memory →";
+
+  $("nextQuestion").textContent =
+    viewedMemories.length === 4
+      ? "Our Love Story →"
+      : "Next memory →";
+
+  $("nextQuestion").hidden = true;
 }
 
-function revealMemory() {
-  const item = memories[currentQuestion];
-  $("memoryImage").src = item.image;
-  $("memoryImage").style.display = "";
-  $("memoryImage").nextElementSibling.style.display = "none";
-  $("memoryImage").onerror = function () {
-    this.style.display = "none";
-    this.nextElementSibling.style.display = "grid";
+function revealImage(memory) {
+  const img = $("memoryImage");
+  const placeholder = img.nextElementSibling;
+
+  img.onload = function () {
+    this.style.display = "block";
+    placeholder.style.display = "none";
   };
-  $("memoryDate").textContent = item.date;
-  $("memoryCaption").textContent = item.caption;
+
+  img.onerror = function () {
+    this.style.display = "none";
+    placeholder.style.display = "grid";
+  };
+
+  img.style.display = "block";
+  placeholder.style.display = "none";
+  img.src = memory.image;
+
+  $("memoryDate").textContent = memory.date;
+  $("memoryCaption").textContent = memory.caption;
   $("memoryReveal").hidden = false;
   $("showMemory").hidden = true;
 }
 
 function chooseAnswer(index, button) {
-  const item = memories[currentQuestion];
-  document.querySelectorAll(".answer-option").forEach((b) => { b.disabled = true; });
+  if (viewedMemories.includes(index)) return;
+
+  selectedMemoryIndex = index;
+  viewedMemories.push(index);
+
+  document.querySelectorAll(".answer-option").forEach((b) => {
+    b.disabled = true;
+  });
+
   button.classList.add("selected");
-  $("quizFeedback").textContent = index === item.answer
-    ? "You remembered! 🥹❤️"
-    : "Hehe, that's okay — let's unlock this memory anyway. 💗";
-  revealMemory();
+
+  $("quizFeedback").textContent =
+    index === 3
+      ? "You remembered! 🥹❤️"
+      : "Aww, let's unlock this memory! 💗";
+
+  revealImage(memoryImages[index]);
+
+  $("quizCount").textContent =
+    `MEMORY ${viewedMemories.length} / 4`;
+
+  $("nextQuestion").textContent =
+    viewedMemories.length === 4
+      ? "Our Love Story →"
+      : "Next memory →";
+
+  $("nextQuestion").hidden = false;
 }
 
-$("openSurprise").addEventListener("click", () => {
-  // This click is the visitor's gesture, so the first song can begin here.
+$("openSurprise").addEventListener("click", async () => {
+  // User interaction allows browsers to start music
   musicEnabled = true;
+
+  await playSectionMusic("home");
   showSection("memory-game");
 });
 
 $("showMemory").addEventListener("click", () => {
-  $("quizFeedback").textContent = "Here's our little memory. Keep it safe in your heart. ♡";
-  document.querySelectorAll(".answer-option").forEach((b) => { b.disabled = true; });
-  revealMemory();
+  $("quizFeedback").textContent =
+    "Surprise! Here's one more special memory. 💗";
+
+  revealImage({
+    date: "A LITTLE EXTRA SURPRISE ♡",
+    caption: "One more little memory, made special just for you. ❤️",
+    image: "assets/ask.png"
+  });
 });
 
 $("nextQuestion").addEventListener("click", () => {
-  if (currentQuestion === memories.length - 1) {
-    currentQuestion = 0;
+  if (viewedMemories.length < 4) {
     renderQuestion();
-    showSection("our-story");
   } else {
-    currentQuestion++;
-    renderQuestion();
+    showSection("our-story");
   }
 });
 
 document.querySelectorAll("[data-go]").forEach((button) => {
-  button.addEventListener("click", () => showSection(button.dataset.go));
+  button.addEventListener("click", () => {
+    const destination = button.dataset.go;
+
+    if (
+      destination === "our-story" &&
+      viewedMemories.length < 4
+    ) {
+      $("quizFeedback").textContent =
+        "First, unlock all 4 little memories with me! 💗";
+      return;
+    }
+
+    showSection(destination);
+  });
 });
 
-// The letter itself stays hidden until the envelope is tapped.
 $("openLetter").addEventListener("click", () => {
   const opening = $("letterPaper").hidden;
   $("letterPaper").hidden = !opening;
+
   $("openLetter").setAttribute("aria-expanded", String(opening));
-  $("openLetter").querySelector("span:nth-child(2)").textContent = opening ? "Close my heart" : "Open my heart";
-  $("openLetter").querySelector("small").textContent = opening ? "tap to close" : "tap to open";
+
+  $("openLetter").querySelector("span:nth-child(2)").textContent =
+    opening ? "Close my heart" : "Open my heart";
+
+  $("openLetter").querySelector("small").textContent =
+    opening ? "tap to close" : "tap to open";
+
   if (opening) {
-    $("letterPaper").scrollIntoView({ behavior: "smooth", block: "center" });
+    $("letterPaper").scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
   }
 });
 
 $("reasonButton").addEventListener("click", () => {
   let index = Math.floor(Math.random() * reasons.length);
-  if (reasons.length > 1 && index === lastReason) index = (index + 1) % reasons.length;
+
+  if (reasons.length > 1 && index === lastReason) {
+    index = (index + 1) % reasons.length;
+  }
+
   lastReason = index;
   reasonsShown++;
+
   $("reasonPaper").textContent = reasons[index];
-  $("reasonCount").textContent = `Love note ${reasonsShown} · ${reasons.length} little reasons in this jar`;
+
+  $("reasonCount").textContent =
+    `Love note ${reasonsShown} · ${reasons.length} little reasons in this jar`;
+
   $("reasonPaper").classList.remove("note-pop");
   void $("reasonPaper").offsetWidth;
   $("reasonPaper").classList.add("note-pop");
@@ -169,50 +359,82 @@ $("reasonButton").addEventListener("click", () => {
 $("finalButton").addEventListener("click", () => {
   $("finalMessage").hidden = false;
   $("finalButton").textContent = "A little reminder, always ♡";
-  $("finalMessage").scrollIntoView({ behavior: "smooth", block: "center" });
+
+  $("finalMessage").scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
 });
 
 const restartButton = $("restartSurprise");
-if (restartButton) restartButton.addEventListener("click", () => {
-  currentQuestion = 0;
-  renderQuestion();
-  $("letterPaper").hidden = true;
-  $("openLetter").setAttribute("aria-expanded", "false");
-  $("openLetter").querySelector("span:nth-child(2)").textContent = "Open my heart";
-  $("openLetter").querySelector("small").textContent = "tap to open";
-  $("finalMessage").hidden = true;
-  showSection("home");
-  musicEnabled = false;
-  song.pause();
-  song.currentTime = 0;
-  musicButton.classList.remove("playing");
-  musicButton.querySelector("span").textContent = "Play our song";
-});
+
+if (restartButton) {
+  restartButton.addEventListener("click", () => {
+    currentQuestion = 0;
+    viewedMemories = [];
+    selectedMemoryIndex = null;
+
+    renderQuestion();
+
+    $("letterPaper").hidden = true;
+
+    $("openLetter").setAttribute("aria-expanded", "false");
+    $("openLetter").querySelector("span:nth-child(2)").textContent =
+      "Open my heart";
+    $("openLetter").querySelector("small").textContent = "tap to open";
+
+    $("finalMessage").hidden = true;
+
+    musicEnabled = false;
+    songRequestId++;
+
+    song.pause();
+    song.currentTime = 0;
+
+    updateMusicButton(false);
+
+    showSection("home");
+  });
+}
 
 musicButton.addEventListener("click", async () => {
+  if (!song) return;
+
   if (!song.paused && musicEnabled) {
-    song.pause();
     musicEnabled = false;
-    musicButton.classList.remove("playing");
-    musicButton.querySelector("span").textContent = "Play our song";
+    songRequestId++;
+    song.pause();
+    updateMusicButton(false);
     return;
   }
+
   musicEnabled = true;
   await playSectionMusic(activeSection);
 });
 
-// Gentle floating hearts, kept subtle so text remains easy to read.
 const heartLayer = document.querySelector(".floating-hearts");
+
 function addHeart() {
+  if (!heartLayer) return;
+
   const heart = document.createElement("span");
   heart.className = "floating-heart";
   heart.textContent = Math.random() > 0.5 ? "♡" : "♥";
   heart.style.left = `${Math.random() * 100}%`;
   heart.style.fontSize = `${12 + Math.random() * 16}px`;
   heart.style.animationDuration = `${9 + Math.random() * 8}s`;
+
   heartLayer.appendChild(heart);
+
   setTimeout(() => heart.remove(), 18000);
 }
+
 setInterval(addHeart, 1300);
+
 renderQuestion();
 showSection("home");
+
+// Try to autoplay when the webpage opens.
+// Browsers may require the visitor to tap once before sound can play.
+musicEnabled = true;
+playSectionMusic("home");
